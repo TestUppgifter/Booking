@@ -53,8 +53,8 @@ public class User  implements UserDetails {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public String getRole() {
+        return role.toString();
     }
 
     public void setRole(Role role) {

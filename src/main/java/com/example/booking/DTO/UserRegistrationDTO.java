@@ -26,7 +26,7 @@ public class UserRegistrationDTO {
     }
 
     public void setPassword(String password) {
-        this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+        this.password = password;
     }
 
     // Getters and setters
