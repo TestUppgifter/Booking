@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Booking System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <h1>LaundryHub</h1>
+    <div class="nav-items">
+        <span id="username-display"></span>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Available Washing Machines</h2>
+    <div class="machine-grid" id="machine-container">
+        <!-- Machines will be loaded here dynamically -->
+    </div>
+
+    <h2>Your Bookings</h2>
+    <div class="bookings-list" id="bookings-container">
+        <!-- Bookings will be loaded here dynamically -->
+    </div>
+</div>
+
+<script src="/js/home.js"></script>
+</body>
+</html>

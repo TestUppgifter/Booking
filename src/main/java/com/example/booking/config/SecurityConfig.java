@@ -2,23 +2,15 @@ package com.example.booking.config;
 
 import com.example.booking.repository.UserRepository;
 import com.example.booking.service.CustomUserDetailsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,7 +18,6 @@ import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
-import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -50,19 +41,36 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/static/**").permitAll()
+                        .requestMatchers("/static/**", "/public/**", "/login", "/register", "/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/error", "/login.html", "/register.html", "/error.html",
+                                "/css/**", "/js/**", "/static/**", "/public/**",
+                                "/login", "/register", "/api/auth/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login.html")  // Correct login page URL
+                        .loginProcessingUrl("/api/auth/login") // Match your AuthController endpoint
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .invalidSessionUrl("/login")
+                        .invalidSessionUrl("/error.html")
                         .maximumSessions(1)
-                        .expiredUrl("/login")
+                        .expiredUrl("/error.html")
                 )
                 .securityContext((securityContext) -> securityContext
                         .securityContextRepository(securityContextRepository())
                 )
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
@@ -80,14 +88,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customUserDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
     }
 
     @Bean
