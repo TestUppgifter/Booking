@@ -1,18 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const username = localStorage.getItem('username');
-    if (!username) window.location.href = '/login';
-
-    // Display username
-    document.getElementById('username-display').textContent = `Welcome, ${username}!`;
-
-    // Load machines and bookings
-    loadMachines();
-    loadBookings();
+    checkAuth();
 });
+
+async function checkAuth() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const userData = await response.json();
+            document.getElementById('username-display').textContent = `Welcome, ${userData.username}!`;
+            loadMachines();
+            loadBookings();
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        window.location.href = '/login';
+    }
+}
 
 async function loadMachines() {
     try {
-        const response = await fetch('/api/machines');
+        const response = await fetch('/api/machines', {
+            credentials: 'include'
+        });
         const machines = await response.json();
 
         const container = document.getElementById('machine-container');
@@ -36,13 +48,13 @@ async function bookMachine(machineId) {
         const response = await fetch(`/api/bookings`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 machineId,
-                duration: 60 // 60 minutes default
-            })
+                duration: 60
+            }),
+            credentials: 'include' // Session cookies will auto-attach
         });
 
         if (response.ok) {
@@ -58,9 +70,7 @@ async function bookMachine(machineId) {
 async function loadBookings() {
     try {
         const response = await fetch('/api/bookings', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            credentials: 'include' // Session-based auth
         });
         const bookings = await response.json();
 
@@ -82,9 +92,7 @@ async function cancelBooking(bookingId) {
     try {
         const response = await fetch(`/api/bookings/${bookingId}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            credentials: 'include' // Session cookies only
         });
 
         if (response.ok) {

@@ -10,6 +10,7 @@ import com.example.booking.model.User;
 import com.example.booking.service.CustomUserDetailsService;
 import com.example.booking.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.management.InstanceAlreadyExistsException;
+import java.util.Collections;
 import java.util.InputMismatchException;
 
 @RestController
@@ -54,19 +56,35 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
+        System.out.println("******* Received username: " + loginDTO.getUsername());  // **********************
+        System.out.println("******* Received passw: " + loginDTO.getPassword());  // **********************
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.getEmail(),
-                        loginDTO.getPassword()
-                )
-        );
+        if (loginDTO.getUsername() == null || loginDTO.getUsername().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("error", "Username cannot be empty"));
+        }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                SecurityContextHolder.getContext());
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDTO.getUsername(),
+                            loginDTO.getPassword()
+                    )
+            );
 
-        return ResponseEntity.ok().build();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            HttpSession session = request.getSession(true);
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    SecurityContextHolder.getContext()
+            );
+
+            return ResponseEntity.ok()
+                    .body(Collections.singletonMap("username", loginDTO.getUsername()));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "Invalid credentials"));
+        }
     }
 
     @PostMapping("/register")
@@ -101,6 +119,15 @@ public class AuthController {
                             "An unexpected error occurred",
                             null
                     ));
+        }
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<?> checkAuthentication(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            return ResponseEntity.ok().body(Collections.singletonMap("username", authentication.getName()));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

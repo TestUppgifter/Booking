@@ -2,7 +2,9 @@ package com.example.booking.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -10,36 +12,28 @@ import java.time.LocalDateTime;
 @Table(name = "bookings")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "machine_id")
     private Machine machine;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+    private boolean active = true;
 
     public Long getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Machine getMachine() {
@@ -48,6 +42,14 @@ public class Booking {
 
     public void setMachine(Machine machine) {
         this.machine = machine;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDateTime getStartTime() {
@@ -66,11 +68,11 @@ public class Booking {
         this.endTime = endTime;
     }
 
-    public BookingStatus getStatus() {
-        return status;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setStatus(BookingStatus status) {
-        this.status = status;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

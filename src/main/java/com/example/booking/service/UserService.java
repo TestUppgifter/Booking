@@ -45,7 +45,9 @@ public class UserService {
         } else {
             role = Role.ADMIN;
         }
-        System.out.println("Raw password before encoding: " + password); // TODO ***********
+        System.out.println("******* email: " + email); // TODO ***********
+        System.out.println("******* Raw password before encoding: " + password); // TODO ***********
+        System.out.println("******* Role: " + role); // TODO ***********
         String encodedPassword = passwordEncoder.encode(password);
         System.out.println("Encoded password to store: " + encodedPassword); // TODO ***********
         validateInput(email, password, role);

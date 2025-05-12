@@ -1,10 +1,15 @@
 package com.example.booking.repository;
 
 import com.example.booking.model.Booking;
+import com.example.booking.model.Machine;
+import com.example.booking.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-
+    List<Booking> findByUserAndActiveTrue(User user);
+    List<Booking> findByMachineAndActiveTrue(Machine machine);
 }

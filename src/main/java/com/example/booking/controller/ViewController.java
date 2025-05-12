@@ -8,16 +8,21 @@ public class ViewController {
 
     @GetMapping("/login")
     public String loginPage() {
-        return "forward:login.html";
+        return "login.html";
     }
 
     @GetMapping("/register")
     public String registerPage() {
-        return "forward:register.html";
+        return "register.html";
     }
 
     @GetMapping("/error")
     public String errorPage() {
-        return "forward:error.html";
+        return "error.html";
+    }
+
+    @GetMapping("/home")
+    public String homePage() {
+        return "home.html";
     }
 }

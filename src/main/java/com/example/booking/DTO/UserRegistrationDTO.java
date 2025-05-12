@@ -15,12 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 @Setter
 public class UserRegistrationDTO {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email")
-    private String email;
+    @NotBlank(message = "Username is required")
+    @Email(message = "Please provide a valid username")
+    private String username;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     @NotNull(message = "Role is required")
@@ -28,7 +28,7 @@ public class UserRegistrationDTO {
     private String role;
 
     public String getEmail() {
-        return email;
+        return username;
     }
 
     public String getPassword() {
